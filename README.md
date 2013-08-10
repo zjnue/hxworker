@@ -1,0 +1,4 @@
+hxworker
+========
+
+Haxe worker library
