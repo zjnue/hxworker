@@ -1,0 +1,46 @@
+-main Task
+-js bin/task.js
+-cp ../../src
+-cp src
+
+--next
+
+-main Task
+-swf task.swf
+-swf-version 11.7
+-cp ../../src
+-cp src
+
+--next
+
+-main Main
+-swf bin/main.swf
+-swf-version 11.7
+-cp ../../src
+-cp src
+
+--next
+
+-main Main
+-js bin/main.js
+-cp ../../src
+-cp src
+
+--next
+
+-main Main
+-cpp cpp
+-cp ../../src
+-cp src
+-cmd cp cpp/Main bin/main-cpp
+
+--next
+
+-main Main
+-neko bin/main.n
+-cp ../../src
+-cp src
+-cmd nekotools boot bin/main.n
+
+#cleanup
+-cmd rm task.swf
