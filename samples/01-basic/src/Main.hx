@@ -32,7 +32,7 @@ class Main {
 	
 	function doTask( wid : String, taskName : String, ?args : Array<Dynamic> ) {
 		var input = #if js "task.js" #elseif flash new TaskByteArray() #else Task #end;
-		var worker = new Worker( input, handleWorkerMessage, handleWorkerError );
+		var worker = new Worker( input, handleWorkerMessage.bind(_,wid), handleWorkerError.bind(_,wid) );
 		workers.set(wid, worker);
 		try {
 			postToWorker( wid, "workerId", [wid] );
@@ -41,22 +41,21 @@ class Main {
 			trace("worker error: " + Std.string(e));
 	}
 	
-	function handleWorkerMessage( data : Dynamic ) {
+	function handleWorkerMessage( data : Dynamic, wid : String ) {
 		var msg = Worker.uncompress( data );
 		switch( msg.cmd ) {
 			case "log":
 				trace("log: " + msg.args[0]);
 			case "result":
-				trace("result: " + Std.string(msg.args));
-				var id = Std.string(msg.args[0]);
-				workers.get(id).terminate();
-				workers.remove(id);
-			default: trace("Task: sub worker msg received: cmd = " + msg.cmd + " args = " + Std.string(msg.args));
+				trace("result: wid = " + wid + " args = " + Std.string(msg.args));
+				workers.get(wid).terminate();
+				workers.remove(wid);
+			default: trace("Main: unhandled worker msg received: cmd = " + msg.cmd + " args = " + Std.string(msg.args));
 		}
 	}
 	
-	inline function handleWorkerError( msg : String ) {
-		trace("worker error: " + msg);
+	inline function handleWorkerError( msg : String, wid : String ) {
+		trace("worker error: wid = " + wid + " msg = " + msg);
 	}
 	
 	inline function postToWorker( id : String, cmd : String, ?args : Array<Dynamic> ) {

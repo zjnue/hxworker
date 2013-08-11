@@ -1,6 +1,6 @@
 import hxworker.Worker;
 
-class Task extends hxworker.WorkerScript {
+class Task extends TaskScript {
 	
 	public var workerId : String;
 	
@@ -18,7 +18,7 @@ class Task extends hxworker.WorkerScript {
 	// --- for sub worker routines ---
 	function doTask( wid : String, taskName : String, ?args : Array<Dynamic> ) {
 		var input = #if js "task.js" #elseif flash flash.Lib.current.loaderInfo.bytes #else Task #end;
-		var worker = new Worker( input, handleWorkerMessage.bind(_,wid), handleWorkerError );
+		var worker = new Worker( input, handleWorkerMessage.bind(_,wid), handleWorkerError.bind(_,wid) );
 		setWorker(wid, worker);
 		try {
 			postToWorker( wid, "workerId", [wid] );
@@ -33,12 +33,12 @@ class Task extends hxworker.WorkerScript {
 		switch( msg.cmd ) {
 			case "log": log("log-from-child: " + msg.args[0]);
 			case "result": post(msg.cmd, msg.args);
-			default: log("Task: sub worker msg received: cmd = " + msg.cmd + " args = " + Std.string(msg.args));
+			default: log("Task: unhandled sub worker msg received: cmd = " + msg.cmd + " args = " + Std.string(msg.args));
 		}
 	}
 	
-	inline function handleWorkerError( msg : String ) {
-		log("worker error: " + msg);
+	inline function handleWorkerError( msg : String, wid : String ) {
+		log("worker error: wid = " + wid + " msg = " + msg);
 	}
 	
 	inline function postToWorker( wid : String, cmd : String, ?args : Array<Dynamic> ) {
@@ -49,24 +49,23 @@ class Task extends hxworker.WorkerScript {
 	public function doThing1() {
 		log("starting: doThing1");
 		var result = -1;
-		post( "result", [workerId, "doThing1", result] );
+		post( "result", ["doThing1", result] );
 	}
 	
 	public function doThing2() {
 		log("starting: doThing2");
 		var result = "JHSGFLJHDFF";
-		post( "result", [workerId, "doThing2", result] );
+		post( "result", ["doThing2", result] );
 	}
 	
 	public function doThing3() {
 		log("starting: doThing3");
 		var result = 234238;
-		post( "result", [workerId, "doThing3", result] );
+		post( "result", ["doThing3", result] );
 	}
 	
 	public static function main() {
-		var task = new Task();
-		hxworker.WorkerScript.export(task);
+		new Task().export();
 	}
 	
 	override public function handleOnMessage(data) {

@@ -57,7 +57,7 @@ class WorkerScript {
 		worker.sendFromSub( Worker.compress(cmd, args) );
 		#end
 	}
-	function handleWorkerMessage( data : Dynamic, inv_id : String ) {}
+	function handleWorkerMessage( data : Dynamic, wid : String ) {}
 	#if js
 	function postMessage( msg : Dynamic ) : Void {
 		untyped __js__("self.postMessage( msg )");
@@ -86,11 +86,12 @@ class WorkerScript {
 		return has;
 	}
 	
-	// make sure all script methods are added here
+	// make sure all script fields are added here
 	// TODO use a macro for this
-	public static function export( script : WorkerScript ) {
+	public function export() {
 		#if js
 		
+		var script = this;
 		untyped __js__("self.onmessage = script.onMessage");
 		untyped __js__("self.onerror = script.onError");
 		untyped __js__("self.post = script.post");
