@@ -4,6 +4,8 @@ package hxworker;
 import neko.vm.Thread;
 #elseif cpp
 import cpp.vm.Thread;
+#elseif java
+import java.vm.Thread;
 #end
 
 class Worker {
@@ -84,7 +86,9 @@ class Worker {
 		
 		while( running ) {
 			try {
-				inst.onMessage( Thread.readMessage( true ) );
+				var msg = Thread.readMessage( true );
+				if( Std.string(msg) == "##TERMINATE##" ) break;
+				inst.onMessage( msg );
 			} catch( e : Dynamic ) {
 				errorThread.sendMessage(e);
 			}
@@ -94,13 +98,21 @@ class Worker {
 	var sendErrorToMainThread : Thread;
 	function sendErrorToMain() {
 		var onError = Thread.readMessage( true );
-		while( running ) onError( Thread.readMessage( true ) );
+		while( running ) {
+			var msg = Thread.readMessage( true );
+			if( Std.string(msg) == "##TERMINATE##" ) break;
+			onError( msg );
+		}
 	}
 	
 	var feedMainThread : Thread;
 	function feedMain() {
 		var onData = Thread.readMessage( true );
-		while( running ) onData( Thread.readMessage( true ) );
+		while( running ) {
+			var msg = Thread.readMessage( true );
+			if( Std.string(msg) == "##TERMINATE##" ) break;
+			onData( msg );
+		}
 	}
 	#end
 	
@@ -121,6 +133,9 @@ class Worker {
 		inst.terminate();
 		#else
 		running = false;
+		thread.sendMessage( "##TERMINATE##" );
+		feedMainThread.sendMessage( "##TERMINATE##" );
+		sendErrorToMainThread.sendMessage( "##TERMINATE##" );
 		#end
 	}
 	

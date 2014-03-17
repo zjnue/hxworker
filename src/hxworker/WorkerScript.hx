@@ -4,6 +4,8 @@ package hxworker;
 import neko.vm.Mutex;
 #elseif cpp
 import cpp.vm.Mutex;
+#elseif java
+import java.vm.Mutex;
 #end
 
 import hxworker.Worker;
@@ -17,7 +19,7 @@ class WorkerScript {
 	#if flash
 	var channelOut : flash.system.MessageChannel;
 	var channelIn : flash.system.MessageChannel;
-	#elseif (neko || cpp)
+	#elseif !js
 	var workersMutex : Mutex;
 	public var worker : Worker;
 	#end
@@ -30,7 +32,7 @@ class WorkerScript {
 		channelIn = flash.system.Worker.current.getSharedProperty( Worker.TO_SUB );
 		channelOut = flash.system.Worker.current.getSharedProperty( Worker.FROM_SUB );
 		channelIn.addEventListener( flash.events.Event.CHANNEL_MESSAGE, onMessage );
-		#elseif (neko || cpp)
+		#elseif !js
 		workersMutex = new Mutex();
 		#end
 	}
@@ -65,24 +67,24 @@ class WorkerScript {
 	#end
 	
 	function setWorker( id : String, worker : Worker ) {
-		#if (neko || cpp) workersMutex.acquire(); #end
+		#if !(js || flash) workersMutex.acquire(); #end
 		workers.set(id, worker);
-		#if (neko || cpp) workersMutex.release(); #end
+		#if !(js || flash) workersMutex.release(); #end
 	}
 	
 	function getWorker( id : String ) {
 		var worker = null;
-		#if (neko || cpp) workersMutex.acquire(); #end
+		#if !(js || flash) workersMutex.acquire(); #end
 		worker = workers.get(id);
-		#if (neko || cpp) workersMutex.release(); #end
+		#if !(js || flash) workersMutex.release(); #end
 		return worker;
 	}
 	
 	function hasWorker( id : String ) {
 		var has = false;
-		#if (neko || cpp) workersMutex.acquire(); #end
+		#if !(js || flash) workersMutex.acquire(); #end
 		has = workers.exists(id);
-		#if (neko || cpp) workersMutex.release(); #end
+		#if !(js || flash) workersMutex.release(); #end
 		return has;
 	}
 	

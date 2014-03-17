@@ -42,5 +42,13 @@
 -cp src
 -cmd nekotools boot bin/main.n
 
+--next
+
+-main Main
+-java java
+-cp ../../src
+-cp src
+-cmd cp java/Main.jar bin/main-java.jar
+
 #cleanup
 -cmd rm task.swf
