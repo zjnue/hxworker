@@ -18,7 +18,7 @@ class Worker {
 	public var type : String;
 	
 	#if js
-	var inst : js.Worker;
+	var inst : js.html.Worker;
 	#elseif flash
 	var inst : flash.system.Worker;
 	var channelIn : flash.system.MessageChannel;
@@ -36,7 +36,7 @@ class Worker {
 		this.type = type;
 		#if js
 		
-		inst = new js.Worker( input );
+		inst = new js.html.Worker( input );
 		inst.addEventListener( "message", function(e) { onData( e.data ); } );
 		inst.addEventListener( "error", function(e) { onError( e.message ); } );
 		#elseif flash
