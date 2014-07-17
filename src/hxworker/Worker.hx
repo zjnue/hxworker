@@ -23,8 +23,6 @@ class Worker {
 	var inst : flash.system.Worker;
 	var channelIn : flash.system.MessageChannel;
 	var channelOut : flash.system.MessageChannel;
-	#else
-	var running : Bool = true;
 	#end
 	
 	var onData : Dynamic -> Void;
@@ -84,7 +82,7 @@ class Worker {
 		var inst : WorkerScript = Type.createInstance( clazz, [] );
 		inst.worker = worker;
 		
-		while( running ) {
+		while( true ) {
 			try {
 				var msg = Thread.readMessage( true );
 				if( Std.string(msg) == "##TERMINATE##" ) break;
@@ -98,7 +96,7 @@ class Worker {
 	var sendErrorToMainThread : Thread;
 	function sendErrorToMain() {
 		var onError = Thread.readMessage( true );
-		while( running ) {
+		while( true ) {
 			var msg = Thread.readMessage( true );
 			if( Std.string(msg) == "##TERMINATE##" ) break;
 			onError( msg );
@@ -108,7 +106,7 @@ class Worker {
 	var feedMainThread : Thread;
 	function feedMain() {
 		var onData = Thread.readMessage( true );
-		while( running ) {
+		while( true ) {
 			var msg = Thread.readMessage( true );
 			if( Std.string(msg) == "##TERMINATE##" ) break;
 			onData( msg );
@@ -132,7 +130,6 @@ class Worker {
 		#if (js || flash)
 		inst.terminate();
 		#else
-		running = false;
 		thread.sendMessage( "##TERMINATE##" );
 		feedMainThread.sendMessage( "##TERMINATE##" );
 		sendErrorToMainThread.sendMessage( "##TERMINATE##" );

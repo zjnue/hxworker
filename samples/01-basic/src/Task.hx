@@ -55,7 +55,12 @@ class Task extends TaskScript {
 	public function doThing2() {
 		log("starting: doThing2");
 		var result = "JHSGFLJHDFF";
+		#if (js || flash)
+		haxe.Timer.delay(function() post( "result", ["doThing2", result] ), 1000);
+		#else
+		Sys.sleep(1);
 		post( "result", ["doThing2", result] );
+		#end
 	}
 	
 	public function doThing3() {
