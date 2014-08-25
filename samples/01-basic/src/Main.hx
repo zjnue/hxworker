@@ -24,7 +24,7 @@ class Main {
 		doTask( Std.string(id++), "doThing1" );
 		doTask( Std.string(id++), "doThing2" );
 		doTask( Std.string(id++), "doThing3" );
-		#if (cpp || neko)
+		#if !(js || flash)
 		while( workers.iterator().hasNext() )
 			Sys.sleep(0.5);
 		#end
